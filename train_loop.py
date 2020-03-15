@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-
+import torch
 
 class train:
     def __init__(self, env, agent, method):
@@ -16,6 +16,8 @@ class train:
             self.train=self.td_training
         elif method in "DynaQ":
             self.train = self.model_based_td_training
+        elif method in "DeepQlearning":
+            self.train = self.deep_training
         else:
             raise NotImplementedError
 
@@ -82,6 +84,24 @@ class train:
             steps += 1
         self.agent.update(trajectory, episode_reward)
         self.update_metrics(episode_reward, self.agent.solver.epsilon)
+
+    def deep_training(self):
+        episode_reward = 0
+
+        s = torch.Tensor(self.env.reset())
+        done = False
+        steps = 0
+        while not done:
+            a = self.agent.act(s)
+            s_next, r, done, _ = self.env.step(a)
+            s_next = torch.Tensor(s_next)
+            self.agent.push(s, a, r, s_next)
+            self.agent.update()
+            s = s_next
+            episode_reward += r
+            steps += 1
+
+        self.update_metrics(episode_reward, self.agent.epsilon)
 
     def update_metrics(self,episode_reward, episode_epsilon, episode_td_error = 0):
         self.episode_reward_list.append(episode_reward)
