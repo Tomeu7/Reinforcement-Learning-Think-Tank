@@ -2,6 +2,7 @@ import numpy as np
 import random
 from collections import deque
 
+
 class TDSolver:
     def __init__(self, method,observation_space, action_space, learning_rate, gamma, epsilon, n=None):
         if method == "Qlearning":
@@ -34,6 +35,7 @@ class TDSolver:
 
     def dream(self):
         self.solver.dream()
+
 
 class Qlearning:
     def __init__(self,state_space_size, action_space_size, learning_rate, gamma, epsilon):
