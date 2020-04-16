@@ -9,7 +9,7 @@ Goals:
 
 The structure of methods will look as the image below.
 
-[Structure](docs/RLthinktank.png)
+![Structure](docs/RLthinktank.png)
 
 Current implemented Tabular Algorithms:
 
