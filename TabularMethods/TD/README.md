@@ -56,7 +56,7 @@ Expected Sarsa considers the learning as in Q-learning but using a expected valu
 
 Results:
 
-![TD](../docs/TD.png)
+![TD](docs/TD.png)
 
 References:
 

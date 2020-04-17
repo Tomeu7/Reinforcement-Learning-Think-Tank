@@ -16,7 +16,7 @@ Starting with an estimate of Q-values and a visit number for each state we updat
 
 Results:
 
-![MC](../docs/Monte_Carlo.png)
+![MC](docs/Monte_Carlo.png)
 
 References:
 
