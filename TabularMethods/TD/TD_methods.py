@@ -1,31 +1,38 @@
 import numpy as np
 import random
 from collections import deque
+import json
 
 
 class TDSolver:
-    def __init__(self, method,observation_space, action_space, learning_rate, gamma, epsilon, n=None):
+    def __init__(self, method, observation_space, action_space, n=None, td_config_path="TabularMethods/TD/TD_config.cfg"):
+
+        with open(td_config_path, 'r') as datafile:
+            config = json.load(datafile)
+
+        learning_rate = float(config['learning_rate'])
+        gamma = float(config['gamma'])
+
         if method == "Qlearning":
-            self.solver = Qlearning(observation_space, action_space, learning_rate, gamma, epsilon)
+            self.solver = Qlearning(observation_space, action_space, learning_rate, gamma)
         elif method == "Sarsa":
-            self.solver = Sarsa(observation_space, action_space, learning_rate, gamma, epsilon)
+            self.solver = Sarsa(observation_space, action_space, learning_rate, gamma)
         elif method == "DoubleQlearning":
-            self.solver = DoubleQlearning(observation_space, action_space, learning_rate, gamma, epsilon)
+            self.solver = DoubleQlearning(observation_space, action_space, learning_rate, gamma)
         elif method == "ExpectedSarsa":
-            self.solver = ExpectedSarsa(observation_space, action_space, learning_rate, gamma, epsilon)
+            self.solver = ExpectedSarsa(observation_space, action_space, learning_rate, gamma)
         elif method == "DynaQ":
-            self.solver = DynaQ(observation_space, action_space, learning_rate, gamma, epsilon, n)
+            self.solver = DynaQ(observation_space, action_space, learning_rate, gamma, n)
         else:
             raise NotImplementedError
 
     def act(self, s):
         a = self.solver.act(s)
-        self.decrease_epsilon()
         return int(a)
 
     def decrease_epsilon(self):
-        self.solver.epsilon -= 0.000001
-        self.solver.epsilon = max(0.001, self.solver.epsilon)
+        self.solver.epsilon -= 0.0001
+        self.solver.epsilon = max(0.000, self.solver.epsilon)
 
     def update(self, s, a, r, s_next, a_next):
         self.solver.update(s, a, r, s_next, a_next)
@@ -38,19 +45,19 @@ class TDSolver:
 
 
 class Qlearning:
-    def __init__(self,state_space_size, action_space_size, learning_rate, gamma, epsilon):
+    def __init__(self,state_space_size, action_space_size, learning_rate, gamma):
         self.action_space_size = action_space_size
         self.Q = np.zeros((state_space_size, action_space_size))
         self.learning_rate = learning_rate
         self.gamma = gamma
-        self.epsilon = epsilon
+        self.epsilon = 1.0
 
     def update(self, s, a, r, s_next, _):
         self.Q[s, a] += self.learning_rate*(r+self.gamma*np.max(self.Q[s_next,:]) - self.Q[s,a])
 
     def act(self, s):
         rand = random.random()
-        if rand > self.epsilon:
+        if rand < self.epsilon:
             a = np.random.randint(0, self.action_space_size)
         else:
             a = np.argmax(self.Q[s, :])
@@ -59,11 +66,11 @@ class Qlearning:
 
 
 class Sarsa:
-    def __init__(self, state_space_size, action_space_size, learning_rate, gamma, epsilon = 1):
+    def __init__(self, state_space_size, action_space_size, learning_rate, gamma):
         self.Q = np.zeros((state_space_size, action_space_size))
         self.learning_rate = learning_rate
         self.gamma = gamma
-        self.epsilon = epsilon
+        self.epsilon = 1.0
         self.action_space_size = action_space_size
 
     def update(self, s, a, r, s_next, a_next):
@@ -71,7 +78,7 @@ class Sarsa:
 
     def act(self, s):
         rand = random.random()
-        if rand > self.epsilon:
+        if rand < self.epsilon:
             a = np.random.randint(0, self.action_space_size)
         else:
             a = np.argmax(self.Q[s, :])
@@ -80,12 +87,12 @@ class Sarsa:
 
 
 class DoubleQlearning:
-    def __init__(self,state_space_size, action_space_size, learning_rate, gamma, epsilon):
+    def __init__(self,state_space_size, action_space_size, learning_rate, gamma):
         self.Q1 = np.zeros((state_space_size, action_space_size))
         self.Q2 = np.zeros((state_space_size, action_space_size))
         self.learning_rate = learning_rate
         self.gamma = gamma
-        self.epsilon = epsilon
+        self.epsilon = 1.0
         self.action_space_size = action_space_size
 
     def update(self, s, a, r, s_next, _):
@@ -93,13 +100,13 @@ class DoubleQlearning:
         coin = random.random()
 
         if coin > 0.5:
-            self.Q1[s, a] += self.learning_rate*(r+self.gamma*np.max(self.Q2[s_next,:]) - self.Q1[s, a])
+            self.Q1[s, a] += self.learning_rate*(r+self.gamma*self.Q2[s_next, np.argmax(self.Q1[s_next, :])] - self.Q1[s, a])
         else:
-            self.Q2[s, a] += self.learning_rate * (r + self.gamma * np.max(self.Q1[s_next, :]) - self.Q2[s, a])
+            self.Q2[s, a] += self.learning_rate * (r + self.gamma * self.Q1[s_next, np.argmax(self.Q2[s_next, :])] - self.Q2[s, a])
 
     def act(self, s):
         rand = random.random()
-        if rand > self.epsilon:
+        if rand < self.epsilon:
             a = np.random.randint(0, self.action_space_size)
         else:
             a = np.argmax((self.Q1+self.Q2)[s, :])
@@ -108,22 +115,22 @@ class DoubleQlearning:
 
 
 class ExpectedSarsa:
-    def __init__(self, state_space_size, action_space_size, learning_rate, gamma, epsilon = 1):
+    def __init__(self, state_space_size, action_space_size, learning_rate, gamma):
         self.Q = np.zeros((state_space_size, action_space_size))
         self.learning_rate = learning_rate
         self.gamma = gamma
-        self.epsilon = epsilon
+        self.epsilon = 1.0
         self.action_space_size = action_space_size
 
     def update(self, s, a, r, s_next, _):
 
-        expectation_of_actions = (1-self.epsilon)*np.max(self.Q[s_next,:])
-        expectation_of_actions += self.epsilon*np.sum(self.Q[s_next,:])
+        expectation_of_actions = (1.0-self.epsilon)*np.max(self.Q[s_next, :])
+        expectation_of_actions += self.epsilon*np.average(self.Q[s_next, :])
         self.Q[s, a] += self.learning_rate * (r + self.gamma * expectation_of_actions - self.Q[s, a])
 
     def act(self, s):
         rand = random.random()
-        if rand > self.epsilon:
+        if rand < self.epsilon:
             a = np.random.randint(0, self.action_space_size)
         else:
             a = np.argmax(self.Q[s, :])
@@ -132,12 +139,12 @@ class ExpectedSarsa:
 
 
 class DynaQ:
-    def __init__(self, state_space_size, action_space_size, learning_rate, gamma, epsilon, n=20):
+    def __init__(self, state_space_size, action_space_size, learning_rate, gamma, n=20):
         self.action_space_size = action_space_size
         self.Q = np.zeros((state_space_size, action_space_size))
         self.learning_rate = learning_rate
         self.gamma = gamma
-        self.epsilon = epsilon
+        self.epsilon = 1.0
 
         self.model = self.Model(state_space_size, action_space_size)
         self.n = n
@@ -154,7 +161,7 @@ class DynaQ:
 
     def act(self, s):
         rand = random.random()
-        if rand > self.epsilon:
+        if rand < self.epsilon:
             a = np.random.randint(0, self.action_space_size)
         else:
             a = np.argmax(self.Q[s, :])
