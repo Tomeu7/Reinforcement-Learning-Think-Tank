@@ -56,7 +56,7 @@ Expected Sarsa considers the learning as in Q-learning but using a expected valu
 
 Results:
 
-![TD](docs/TD.png)
+![TD](https://github.com/Tomeu7/Reinforcement-Learning-Think-Tank/blob/master/docs/Monte_Carlo.png)
 
 References:
 
