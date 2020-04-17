@@ -14,9 +14,9 @@ Starting with an estimate of Q-values and a visit number for each state we updat
 3. <img src="https://render.githubusercontent.com/render/math?math=N(s,a) = 1 \ \ \ \or \ \ \ \N(s,a) = N(s,a) %2B 1 \ \ \ \(depending \ \ \ \ on \ \ \ \ the \ \ \ \ strategy)">  
 4. <img src="https://render.githubusercontent.com/render/math?math=Q(s,a) = Q(s,a) %2B 1/N(s,a)(G - Q(s,a))"> 
 
-Results for environmnet Taxi-v3:
+Results for environmnet **Taxi-v3**:
 
-![MC](https://github.com/Tomeu7/Reinforcement-Learning-Think-Tank/blob/master/docs/TD.png)
+![MC](https://github.com/Tomeu7/Reinforcement-Learning-Think-Tank/blob/master/docs/Monte_Carlo.png)
 
 References:
 

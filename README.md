@@ -27,15 +27,15 @@ Current implemented Deep Algorithms:
 
 Example of usage for Tabular methods:
 
-"""
+```
 python main.py --method Qlearning --env FrozenLake-v0 
-"""
+```
 
 Example of usage for DeepRLMethods:
 
-"""
+```
 python main.py --method DeepQLearning --env LunarLander-v2 
-"""
+```
 
 Requirements:
 + gym
