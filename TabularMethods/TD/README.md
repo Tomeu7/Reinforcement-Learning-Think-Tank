@@ -54,7 +54,7 @@ Expected Sarsa considers the learning as in Q-learning but using a expected valu
 
 1. <img src="https://render.githubusercontent.com/render/math?math=Q(s,a) \longleftarrow Q(S,A) %2B \alpha [r %2B \gamma \E_\pi [Q(s^', a)] - Q(s,a)]">
 
-Results:
+Results for environmnet Taxi-v3:
 
 ![TD](https://github.com/Tomeu7/Reinforcement-Learning-Think-Tank/blob/master/docs/Monte_Carlo.png)
 
